@@ -1,7 +1,7 @@
 === Plugin Name ===
 Contributors: Iulia Cazan 
 Author URI: https://profiles.wordpress.org/iulia-cazan
-Tags: post, latest post, taxonomy, category, tag, parent, shortcode, latest, custom, selection, post by taxonomy, post by tag, post by id, post by parent, last post
+Tags: post, latest post, taxonomy, category, tag, parent, shortcode, latest, custom, selection, post by category, post by taxonomy, post by tag, post by id, post by parent, last post, tiles from posts
 Requires at least: not tested
 Tested up to: wp 4.1
 Stable tag:  1.0
