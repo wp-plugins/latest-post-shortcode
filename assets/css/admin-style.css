@@ -1,0 +1,14 @@
+#TB_ajaxContent {
+    height: 100% !important;
+}
+
+.lps_shortcode_popup_container_table input[type="text"], .lps_shortcode_popup_container_table select {
+    min-width: 98% !important;
+    width: 98% !important;
+}
+
+#lps_shortcode_button_open span {
+    color: #000;
+    vertical-align: middle;
+    margin-top: -3px;
+}
