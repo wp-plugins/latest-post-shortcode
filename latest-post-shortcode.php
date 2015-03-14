@@ -3,7 +3,7 @@
 Plugin Name: Latest Post Shortcode
 Description: This plugin allows you to create a dynamic content selection from your posts, pages and custom post types that can be embedded with a shortcode.
 Author: Iulia Cazan
-Version: 1.0.0
+Version: 2.0.0
 Author URI: https://profiles.wordpress.org/iulia-cazan
 License: GPL2
 
