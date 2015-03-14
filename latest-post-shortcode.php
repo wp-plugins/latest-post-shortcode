@@ -26,6 +26,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 class Latest_Post_Shortcode
 {
 	private static $instance;
+	var $tile_pattern;
+	var $tile_pattern_links;
+	var $tile_pattern_nolinks;
 
 	/**
 	 * Get active object instance
@@ -64,10 +67,34 @@ class Latest_Post_Shortcode
 		/** Apply the tiles shortcodes */
 		add_shortcode( 'latest-selected-content', array( $this, 'latest_selected_content' ) );
 
+		$this->tile_pattern = array(
+			0  => '[image][title][text][read_more_text]',
+			3  => '[a][image][title][text][read_more_text][/a]',
+			5  => '[image][title][text][a][read_more_text][/a]',
+			1  => '[title][image][text][read_more_text]',
+			11 => '[a][title][image][text][read_more_text][/a]',
+			13 => '[title][image][text][a][read_more_text][/a]',
+			2  => '[title][text][image][read_more_text]',
+			14 => '[a][title][text][image][read_more_text][/a]',
+			17 => '[title][text][image][a][read_more_text][/a]',
+			18 => '[title][text][read_more_text][image]',
+			19 => '[a][title][text][read_more_text][image][/a]',
+			22 => '[title][text][a][read_more_text][/a][image]',
+		);
+
 		if ( is_admin() ) {
 			add_action( 'media_buttons_context', array( $this, 'add_shortcode_button' ) );
 			add_action( 'admin_footer', array( $this, 'add_shortcode_popup_container' ) );
 			add_action( 'admin_head', array( $this, 'load_admin_assets' ) );
+			$this->tile_pattern_links = array();
+			$this->tile_pattern_nolinks = array();
+			foreach ( $this->tile_pattern as $k => $v ) {
+				if ( substr_count( $v, '[a]' ) != 0 ) {
+					array_push( $this->tile_pattern_links, $k );
+				} else {
+					array_push( $this->tile_pattern_nolinks, $k );
+				}
+			}
 		} else {
 			add_action( 'wp_head', array( $this, 'load_assets' ) );
 		}
@@ -84,15 +111,15 @@ class Latest_Post_Shortcode
 	 * Latest_Post_Shortcode::load_assets() Load the front assets
 	 */
 	function load_assets() {
-		wp_enqueue_style( 'lps-style', plugins_url( '/assets/css/style.css', __FILE__ ), array(), '1.0', false );
+		wp_enqueue_style( 'lps-style', plugins_url( '/assets/css/style.css', __FILE__ ), array(), '2.0', false );
 	}
 
 	/**
 	 * Latest_Post_Shortcode::load_admin_assets() Load the admin assets
 	 */
 	function load_admin_assets() {
-		wp_enqueue_style( 'lps-admin-style', plugins_url( '/assets/css/admin-style.css', __FILE__ ), array(), '1.0', false );
-		wp_enqueue_script( 'lps-admin-shortcode-button', plugins_url( '/assets/js/custom.js', __FILE__ ), array( 'jquery' ), '1.0', true );
+		wp_enqueue_style( 'lps-admin-style', plugins_url( '/assets/css/admin-style.css', __FILE__ ), array(), '2.0', false );
+		wp_enqueue_script( 'lps-admin-shortcode-button', plugins_url( '/assets/js/custom.js', __FILE__ ), array( 'jquery' ), '2.0', true );
 	}
 
 	/**
@@ -111,14 +138,14 @@ class Latest_Post_Shortcode
 	 */
 	function add_shortcode_popup_container() {
 		$body = '
-		<div id="lps_shortcode_popup_container" style="display:none; width:90%; height:100%">
+		<div id="lps_shortcode_popup_container" style="display:none; width:100%; height:100%">
 			<h2>' . __( 'Create Your Custom Content Selection Shortcode By Combining What You Need', 'lps' ) . '</h2>
 			<table width="100%" cellpadding="0" cellspacing="0" class="lps_shortcode_popup_container_table">
 				<tr>
 					<td>' . __( 'Number of Posts', 'lps' ) . '</td>
-					<td><input type="text" name="lps_limit" id="lps_limit" value="1" onchange="lps_preview_configures_shortcode()" /></td>
+					<td width="38%"><input type="text" name="lps_limit" id="lps_limit" value="1" onchange="lps_preview_configures_shortcode()"  class="small" /></td>
 					<td>' . __( 'Post Type', 'lps' ) . '</td>
-					<td>
+					<td width="38%">
 						<select name="lps_post_type" id="lps_post_type" onchange="lps_preview_configures_shortcode()">
 							<option value="">' . __( 'Any', 'lps' ) . '</option>
 							';
@@ -134,15 +161,38 @@ class Latest_Post_Shortcode
 						</select>
 					</td>
 				</tr>
+				<tr>					
+					<td colspan="4"><hr /></td>
+				</tr>
 				<tr>
 					<td>' . __( 'Display Post', 'lps' ) . '</td>
 					<td>
 						<select name="lps_display" id="lps_display" onchange="lps_preview_configures_shortcode()">
 							<option value="title">Title</option>
-							<option value="title,excerpt">Title + Excerpt</option>
-							<option value="title,content">Title + Content</option>
+							<option value="title,excerpt">Post Title + Post Excerpt</option>
+							<option value="title,content">Post Title + Post Content</option>
+							<option value="title,excerpt-small">Post Title + Few Chars From The Excerpt</option>
+							<option value="title,content-small">Post Title + Few Chars From The Content</option>
 						</select>
+						<div id="lps_display_limit">
+							<input type="text" name="lps_chrlimit" id="lps_chrlimit" onchange="lps_preview_configures_shortcode()" placeholder="Ex: 120" value="120" class="small" /> ' . __( 'chars from excerpt / content', 'lps' ) . '
+						</div>
 					</td>
+					<td>' . __( 'Use Post URL', 'lps' ) . '</td>
+					<td>
+						<select name="lps_url" id="lps_url" onchange="lps_preview_configures_shortcode()">
+							<option value="">No link to the post</option>
+							<option value="yes">Link to the post</option>
+						</select>
+						<div id="lps_url_options">
+							<input type="text" name="lps_linktext" id="lps_linktext" onchange="lps_preview_configures_shortcode()" placeholder="Custom \'Read more\' message" />
+						</div>
+					</td>
+				</tr>
+				<tr>					
+					<td colspan="4"><hr /></td>
+				</tr>
+				<tr>
 					<td>' . __( 'Use Image', 'lps' ) . '</td>
 					<td>
 						<select name="lps_image" id="lps_image" onchange="lps_preview_configures_shortcode()">
@@ -151,17 +201,21 @@ class Latest_Post_Shortcode
 							<option value="full">Full</option>
 						</select>
 					</td>
-				</tr>
-				<tr>
 					<td>' . __( 'CSS Class Selector', 'lps' ) . '</td>
 					<td><input type="text" name="lps_css" id="lps_css" onchange="lps_preview_configures_shortcode()" placeholder="Ex: two-columns, three-columns" />
 					</td>
-					<td>' . __( 'Use Post URL', 'lps' ) . '</td>
-					<td>
-						<select name="lps_url" id="lps_url" onchange="lps_preview_configures_shortcode()">
-							<option value="">No link to the post</option>
-							<option value="yes">Link to the post</option>
-						</select>
+				</tr>
+				<tr>					
+					<td colspan="4"><hr /></td>
+				</tr>
+				<tr>					
+					<td>' . __( 'Tile Pattern', 'lps' ) . '<br />' . __( '(order of the html tags and the link - marked with red)', 'lps' ) . '</td>
+					<td colspan="3"><input type="hidden" name="lps_elements" id="lps_elements" value="0" onchange="lps_preview_configures_shortcode()" />';
+		foreach ( $this->tile_pattern as $k => $p ) {
+			$cl = ( in_array( $k, $this->tile_pattern_links ) ) ? 'with-link' : 'without-link';
+			$body .= '<label class="' . $cl . '"><img src="' . plugins_url( '/assets/images/post_tiles' . $k . '.png', __FILE__ ) . '" title="' . $p . '" /><input type="radio" name="lps_elements_img" id="lps_elements_img_' . $k . '" value="' . $k . '" onclick="jQuery(\'#lps_elements\').val(\'' . $k . '\'); lps_preview_configures_shortcode();"></label>';
+		}
+		$body .= '
 					</td>
 				</tr>
 				<tr>
@@ -233,6 +287,30 @@ class Latest_Post_Shortcode
 	}
 
 	/**
+	 * Latest_Post_Shortcode::get_short_text() Get short text of maximum x chars
+	 */
+	function get_short_text( $text, $limit ) {
+		$text = apply_filters( 'the_content', strip_shortcodes( $text ) );
+		$text = strip_tags( $text );
+		/** This is a trick to replace the unicode whitespace :) */
+		$text = preg_replace( '/\xA0/u', ' ', $text );
+		$text = preg_replace( '/\s+/', ' ', $text );
+		$content = explode( ' ', $text );
+		$len = $i = 0;
+		$text = '';
+		while ( $len < $limit ) {
+			$text .= $content[$i] . ' ';
+			$i ++;
+			$len = strlen( $text );
+		}
+		$text = trim( $text );
+		$text = preg_replace( '/\[.+\]/', '', $text );
+		$text = apply_filters( 'the_content', $text );
+		$text = str_replace( ']]>', ']]&gt;', $text );
+		return $text;
+	}
+
+	/**
 	 * Latest_Post_Shortcode::latest_selected_content() Return the content generated by a shortcode with the specific arguments
 	 */
 	function latest_selected_content( $args ) {
@@ -242,19 +320,28 @@ class Latest_Post_Shortcode
 		$ids = ( ! empty( $args['id'] ) ) ? explode( ',', $args['id'] ) : array();
 		$parent = ( ! empty( $args['parent'] ) ) ? intval( $args['parent'] ) : 0;
 		$type = ( ! empty( $args['type'] ) ) ? $args['type'] : 'post';
+		$chrlimit = ( ! empty( $args['chrlimit'] ) ) ? intval( $args['chrlimit'] ) : 120;
 
 		$extra_display = ( ! empty( $args['display'] ) ) ? explode( ',', $args['display'] ) : array( 'title' );
+		$linkurl = ( ! empty( $args['url'] ) && 'yes' == $args['url'] ) ? true : false;
+		$tile_type = 0;
+		if ( $linkurl ) {
+			$linktext = ( ! empty( $args['linktext'] ) ) ? $args['linktext'] : '';
+			$tile_type = ( ! empty( $args['elements'] ) && ! empty( $this->tile_pattern[$args['elements']] ) ) ? $args['elements'] : 0;
+		}
+		$tile_pattern = $this->tile_pattern[$tile_type];
+
 		$qargs = array(
 			'post_status'  => 'publish',
 			'order'        => 'DESC',
 			'orderby'      => 'date_publish',
 			'offset'       => 0,
-			'number'       => 1,
+			'numberposts'  => 1,
 			/** Make sure we do not loop in the current page */
 			'post__not_in' => array( $post->ID ),
 		);
-		if ( empty( $args['limit'] ) ) {
-			$qargs['number'] = ( ! empty( $args['limit'] ) ) ? intval( $args['limit'] ) : 1;
+		if ( ! empty( $args['limit'] ) ) {
+			$qargs['numberposts'] = ( ! empty( $args['limit'] ) ) ? intval( $args['limit'] ) : 1;
 		}
 
 		$force_type = true;
@@ -311,29 +398,48 @@ class Latest_Post_Shortcode
 			$class = ( ! empty( $args['css'] ) ) ? ' ' . $args['css'] : '';
 			echo '<section class="latest-post-selection' . esc_attr( $class ) . '">';
 			foreach ( $posts as $post ) {
-				echo '<article>';
-				if ( ! empty( $args['url'] ) ) {
-					echo '<a href="' . get_permalink( $post->ID ) . '">';
+				$tile = $tile_pattern;
+				$a_start = $a_end = '';
+				if ( $linkurl ) {
+					$a_start = '<a href="' . get_permalink( $post->ID ) . '" class="read-more">';
+					$a_end = '</a>';
 				}
+				$tile = str_replace( '[a]', $a_start, $tile );
+				$tile = str_replace( '[/a]', $a_end, $tile );
 				if ( ! empty( $args['image'] ) ) {
 					$image = wp_get_attachment_image_src( get_post_thumbnail_id( intval( $post->ID ) ), $args['image'] );
 					if ( ! empty( $image[0] ) ) {
-						echo '<img src="' . esc_url( $image[0] ) . '" />';
+						$tile = str_replace( '[image]', '<img src="' . esc_url( $image[0] ) . '" />', $tile );
+					} else {
+						$tile = str_replace( '[image]', '', $tile );
 					}
+				} else {
+					$tile = str_replace( '[image]', '', $tile );
 				}
 				if ( in_array( 'title', $extra_display ) ) {
-					echo '<h1>' . esc_html( $post->post_title ) . '</h1>';
+					$tile = str_replace( '[title]', '<h1>' . esc_html( $post->post_title ) . '</h1>', $tile );
+				} else {
+					$tile = str_replace( '[title]', '', $tile );
 				}
-				if ( in_array( 'excerpt', $extra_display ) ) {
-					echo '<p>' . apply_filters( 'the_content', strip_shortcodes( $post->post_excerpt ) ) . '</p>';
+				$text = '';
+				if ( in_array( 'excerpt', $extra_display ) || in_array( 'content', $extra_display ) || in_array( 'content-small', $extra_display ) || in_array( 'excerpt-small', $extra_display ) ) {
+					if ( in_array( 'excerpt', $extra_display ) ) {
+						$text = apply_filters( 'the_content', strip_shortcodes( $post->post_excerpt ) );
+					} elseif ( in_array( 'excerpt-small', $extra_display ) ) {
+						$text = $this->get_short_text( $post->post_excerpt, $chrlimit );
+					} else if ( in_array( 'content', $extra_display ) ) {
+						$text = apply_filters( 'the_content', strip_shortcodes( $post->post_content ) );
+					} elseif ( in_array( 'content-small', $extra_display ) ) {
+						$text = $this->get_short_text( $post->post_content, $chrlimit );
+					}
 				}
-				if ( in_array( 'content', $extra_display ) ) {
-					echo '<p>' . apply_filters( 'the_content', strip_shortcodes( $post->post_content ) ) . '</p>';
+				$tile = str_replace( '[text]', $text, $tile );
+				if ( ! empty( $linktext ) ) {
+					$tile = str_replace( '[read_more_text]', $linktext, $tile );
+				} else {
+					$tile = str_replace( '[read_more_text]', '', $tile );
 				}
-				if ( ! empty( $args['url'] ) ) {
-					echo '</a>';
-				}
-				echo '</article>';
+				echo '<article>' . $tile . '<div class="clear"></div></article>';
 			}
 			echo '</section>';
 		}
