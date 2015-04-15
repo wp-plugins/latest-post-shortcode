@@ -77,3 +77,41 @@
 .latest-post-selection article .read-more {
     float: right;
 }
+
+.latest-post-selection.pages {
+    clear: both;
+    display: table-row;
+    list-style-type: none;
+    margin: 0px;
+    padding: 0px;
+    position: relative;
+    width: 100%;
+}
+
+.latest-post-selection.pages li {
+    display: inline-block;
+    float: left;
+    list-style-type: none;
+    position: relative;
+    vertical-align: middle;
+}
+
+.latest-post-selection.pages li:first-child {
+    margin: 1px;
+    padding: 5px;
+    padding-left: 0px;
+}
+
+.latest-post-selection.pages li a {
+    display: block;
+    line-height: 24px;
+    margin: 1px;
+    min-width: 24px;
+    padding: 5px;
+    text-align: center;
+    text-decoration: none;
+}
+
+.latest-post-selection.pages li.current a {
+    font-weight: bold;
+}

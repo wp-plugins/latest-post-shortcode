@@ -32,6 +32,15 @@ function lps_init_embed_shortcode(ed) {
                 case 'limit' :
                     jQuery('#lps_limit').val(v);
                     break;
+                case 'perpage' :
+                    jQuery('#lps_per_page').val(v);
+                    break;
+                case 'offset' :
+                    jQuery('#lps_offset').val(v);
+                    break;
+                case 'showpages' :
+                    jQuery('#lps_showpages').val(v);
+                    break;
                 case 'type' :
                     jQuery('#lps_post_type').val(v);
                     break;
@@ -49,6 +58,7 @@ function lps_init_embed_shortcode(ed) {
                     break;
                 case 'elements' :
                     jQuery('#lps_elements').val(v);
+                    jQuery('#lps_elements_img_' + v).prop("checked", true);
                     break;
                 case 'linktext' :
                     jQuery('#lps_linktext').val(v);
@@ -75,6 +85,13 @@ function lps_init_embed_shortcode(ed) {
                 default :
                     break;
             }
+
+            if (( jQuery('#lps_offset').val() != 0 || jQuery('#lps_per_page').val() != 0 )) {
+                jQuery('#lps_pagination_options').show();
+                jQuery('#lps_use_pagination').val('yes');
+            } else {
+                jQuery('#lps_pagination_options').hide();
+            }
         }
     }
     lps_preview_configures_shortcode();
@@ -86,6 +103,26 @@ function lps_preview_configures_shortcode() {
     if (limit != '') {
         sc += ' limit="' + limit + '"';
     }
+
+    var use_pagination = jQuery('#lps_use_pagination').val();
+    var perpage = jQuery('#lps_per_page').val();
+    var offset = jQuery('#lps_offset').val();
+    var showpages = jQuery('#lps_showpages').val();
+    if ( use_pagination != '' ) {
+        jQuery('#lps_pagination_options').show();
+        if (perpage != 0) {
+            sc += ' perpage="' + perpage + '"';
+        }
+        if (offset != 0) {
+            sc += ' offset="' + offset + '"';
+        }
+        if (showpages != '') {
+            sc += ' showpages="' + showpages + '"';
+        }
+    } else {
+        jQuery('#lps_pagination_options').hide();
+    }
+
     var type = jQuery('#lps_post_type').val();
     if (type != '') {
         sc += ' type="' + type + '"';

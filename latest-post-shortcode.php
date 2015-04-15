@@ -3,7 +3,7 @@
 Plugin Name: Latest Post Shortcode
 Description: This plugin allows you to create a dynamic content selection from your posts, pages and custom post types that can be embedded with a shortcode.
 Author: Iulia Cazan
-Version: 2.0.0
+Version: 3.0.0
 Author URI: https://profiles.wordpress.org/iulia-cazan
 License: GPL2
 
@@ -111,15 +111,15 @@ class Latest_Post_Shortcode
 	 * Latest_Post_Shortcode::load_assets() Load the front assets
 	 */
 	function load_assets() {
-		wp_enqueue_style( 'lps-style', plugins_url( '/assets/css/style.css', __FILE__ ), array(), '2.0', false );
+		wp_enqueue_style( 'lps-style', plugins_url( '/assets/css/style.css', __FILE__ ), array(), '3.0', false );
 	}
 
 	/**
 	 * Latest_Post_Shortcode::load_admin_assets() Load the admin assets
 	 */
 	function load_admin_assets() {
-		wp_enqueue_style( 'lps-admin-style', plugins_url( '/assets/css/admin-style.css', __FILE__ ), array(), '2.0', false );
-		wp_enqueue_script( 'lps-admin-shortcode-button', plugins_url( '/assets/js/custom.js', __FILE__ ), array( 'jquery' ), '2.0', true );
+		wp_enqueue_style( 'lps-admin-style', plugins_url( '/assets/css/admin-style.css', __FILE__ ), array(), '3.0', false );
+		wp_enqueue_script( 'lps-admin-shortcode-button', plugins_url( '/assets/js/custom.js', __FILE__ ), array( 'jquery' ), '3.0', true );
 	}
 
 	/**
@@ -143,7 +143,19 @@ class Latest_Post_Shortcode
 			<table width="100%" cellpadding="0" cellspacing="0" class="lps_shortcode_popup_container_table">
 				<tr>
 					<td>' . __( 'Number of Posts', 'lps' ) . '</td>
-					<td width="38%"><input type="text" name="lps_limit" id="lps_limit" value="1" onchange="lps_preview_configures_shortcode()"  class="small" /></td>
+					<td width="38%">
+						<table width="100%" cellpadding="0" cellspacing="0">
+							<tr>
+								<td><input type="text" name="lps_limit" id="lps_limit" value="1" onchange="lps_preview_configures_shortcode()" class="small" /></td>
+								<td>
+									<select name="lps_use_pagination" id="lps_use_pagination" onchange="lps_preview_configures_shortcode()">
+										<option value="">' . __( 'No Pagination', 'lps' ) . '</option>
+										<option value="yes">' . __( 'Paginate Results', 'lps' ) . '</option>
+									</select>
+								</td>
+							</tr>
+						</table>
+					</td>
 					<td>' . __( 'Post Type', 'lps' ) . '</td>
 					<td width="38%">
 						<select name="lps_post_type" id="lps_post_type" onchange="lps_preview_configures_shortcode()">
@@ -162,7 +174,27 @@ class Latest_Post_Shortcode
 					</td>
 				</tr>
 				<tr>					
-					<td colspan="4"><hr /></td>
+					<td colspan="4">
+						<div id="lps_pagination_options">
+							<table width="100%" cellpadding="0" cellspacing="0">
+								<tr>
+									<td>' . __( 'Records Per Page', 'lps' ) . '</td>
+									<td><input type="text" name="lps_per_page" id="lps_per_page" value="0" onchange="lps_preview_configures_shortcode()" class="small" /></td>
+									<td>' . __( 'Offset', 'lps' ) . '</td>
+									<td><input type="text" name="lps_offset" id="lps_offset" value="0" onchange="lps_preview_configures_shortcode()" class="small" /></td>
+									<td>
+										<select name="lps_showpages" id="lps_showpages" onchange="lps_preview_configures_shortcode()">
+											<option value="">' . __( 'Hide Pages Navigation', 'lps' ) . '</option>
+											<option value="4">' . __( 'Show Pages Navigation (range of 4 visible pages)', 'lps' ) . '</option>
+											<option value="5">' . __( 'Show Pages Navigation (range of 5 visible pages)', 'lps' ) . '</option>
+											<option value="10">' . __( 'Show Pages Navigation (range of 10 visible pages)', 'lps' ) . '</option>
+										</select>
+									</td>
+								</tr>
+							</table>
+						</div>
+						<hr />
+					</td>
 				</tr>
 				<tr>
 					<td>' . __( 'Display Post', 'lps' ) . '</td>
@@ -295,19 +327,91 @@ class Latest_Post_Shortcode
 		/** This is a trick to replace the unicode whitespace :) */
 		$text = preg_replace( '/\xA0/u', ' ', $text );
 		$text = preg_replace( '/\s+/', ' ', $text );
-		$content = explode( ' ', $text );
-		$len = $i = 0;
-		$text = '';
-		while ( $len < $limit ) {
-			$text .= $content[$i] . ' ';
-			$i ++;
-			$len = strlen( $text );
+		if ( ! empty( $text ) ) {
+			$content = explode( ' ', $text );
+			$len = $i = 0;
+			$max = count( $content );
+			$text = '';
+			while ( $len < $limit ) {
+				$text .= $content[$i] . ' ';
+				$i ++;
+				$len = strlen( $text );
+				if ( $i >= $max ) {
+					break;
+				}
+			}
+			$text = trim( $text );
+			$text = preg_replace( '/\[.+\]/', '', $text );
+			$text = apply_filters( 'the_content', $text );
+			$text = str_replace( ']]>', ']]&gt;', $text );
 		}
-		$text = trim( $text );
-		$text = preg_replace( '/\[.+\]/', '', $text );
-		$text = apply_filters( 'the_content', $text );
-		$text = str_replace( ']]>', ']]&gt;', $text );
 		return $text;
+	}
+
+	/**
+	 * Latest_Post_Shortcode::lps_pagination() Return the content generated for plugin pagination with the specific arguments
+	 */
+	function lps_pagination( $total = 1, $per_page = 10, $range = 4 ) {
+		wp_reset_query();
+		$body = '';
+		$total = intval( $total );
+		$per_page = ( ! empty( $per_page ) ) ? intval( $per_page ) : 1;
+		$range = abs( intval( $range ) - 1 );
+		$range = ( empty( $range ) ) ? 1 : $range;
+		$total_pages = ceil( $total / $per_page );
+		if ( $total_pages > 1 ) {
+			$current_page = get_query_var( 'page' ) ? intval( get_query_var( 'page' ) ) : 1;
+			$body .= '
+			<ul class="latest-post-selection pages">
+				<li>' . __( 'Page', 'lps' ) . ' ' . $current_page . ' ' . __( 'of', 'lps' ) . ' ' . $total_pages . '</li>';
+
+			if ( $total_pages > $range && $current_page > 1 ) {
+				$body .= '<li><a href="' . get_permalink() . '">&lsaquo;&nbsp;</a></li>';
+			}
+			if ( $current_page > $range && $current_page > 1 ) {
+				$body .= '<li><a href="' . get_pagenum_link( $current_page - 1 ) . '">&laquo;</a></li>';
+			}
+
+			$lrang = ceil( ( $current_page % $range ) );
+			$start = $current_page - $lrang;
+			$start = ( $start <= 1 ) ? 1 : $start;
+			$end = $start + $range;
+
+			if ( $end >= $total_pages ) {
+				$end = $total_pages;
+				$start = $end - $range;
+				$start = ( $start <= 1 ) ? 1 : $start;
+			}
+
+			for ( $i = $start; $i <= $end; $i ++ ) {
+				if ( $current_page == $i ) {
+					$body .= '<li class="current"><a>' . $i . '</a></li>';
+				} else {
+					$body .= '<li><a href="' . get_pagenum_link( $i ) . '">' . $i . '</a></li>';
+				}
+			}
+
+			if ( $current_page < $total_pages ) {
+				$body .= '<li><a href="' . get_pagenum_link( $current_page + 1 ) . '">&raquo;</a></li>';
+			}
+			if ( $current_page < $total_pages - 1 && $current_page + $range - 1 < $total_pages && $current_page < $total_pages ) {
+				$body .= '<li><a href="' . get_pagenum_link( $total_pages ) . '">&nbsp;&rsaquo;</a></li>';
+			}
+			$body .= '</ul>';
+
+			if ( get_site_url() . '/' == get_permalink() ) {
+				/** We must use /page/x */
+				if ( ! empty( $current_page ) && substr_count( $body, '/page/' . $current_page . '/' ) != 0 ) {
+					$body = str_replace( '/page/' . $current_page . '/', '/', $body );
+				}
+			} else {
+				/** We must use /x */
+				$body = str_replace( '/' . $current_page . '/page/', '/', $body );
+				$body = str_replace( '/page/', '/', $body );
+			}
+		}
+
+		return $body;
 	}
 
 	/**
@@ -342,6 +446,19 @@ class Latest_Post_Shortcode
 		);
 		if ( ! empty( $args['limit'] ) ) {
 			$qargs['numberposts'] = ( ! empty( $args['limit'] ) ) ? intval( $args['limit'] ) : 1;
+		}
+		if ( ! empty( $args['perpage'] ) ) {
+			$qargs['posts_per_page'] = ( ! empty( $args['perpage'] ) ) ? intval( $args['perpage'] ) : 0;
+			$paged = get_query_var( 'page' ) ? abs( intval( get_query_var( 'page' ) ) ) : 1;
+			$current_page = $paged;
+			$qargs['paged'] = $paged;
+			$qargs['page'] = $current_page;
+		}
+		if ( ! empty( $args['offset'] ) ) {
+			$qargs['offset'] = ( ! empty( $args['offset'] ) ) ? intval( $args['offset'] ) : 0;
+			if ( ! empty( $qargs['paged'] ) ) {
+				$qargs['offset'] = abs( $current_page - 1 ) * $args['offset'];
+			}
 		}
 
 		$force_type = true;
@@ -391,9 +508,15 @@ class Latest_Post_Shortcode
 				)
 			);
 		}
+
 		$posts = get_posts( $qargs );
 
 		ob_start();
+		if ( ! empty( $qargs['posts_per_page'] ) && ! empty( $args['showpages'] ) ) {
+			$counter = new WP_Query( $qargs );
+			$found_posts = ( ! empty( $counter->found_posts ) ) ? $counter->found_posts : 0;
+			echo $this->lps_pagination( intval( $found_posts ), ( ! empty( $qargs['posts_per_page'] ) ) ? $qargs['posts_per_page'] : 1, intval( $args['showpages'] ) );
+		}
 		if ( ! empty( $posts ) ) {
 			$class = ( ! empty( $args['css'] ) ) ? ' ' . $args['css'] : '';
 			echo '<section class="latest-post-selection' . esc_attr( $class ) . '">';

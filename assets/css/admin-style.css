@@ -23,8 +23,12 @@
     margin-top: -3px;
 }
 
-#lps_display_limit, #lps_url_options, #lps_display_limit input, #lps_url_options input, #lps_preview_embed_shortcode {
+#lps_display_limit, #lps_url_options, #lps_display_limit input, #lps_url_options input, #lps_preview_embed_shortcode, #lps_pagination_options, #lps_pagination_options input, #lps_pagination_options select {
     background-color: #FFFFCC;
+}
+
+#lps_pagination_options td {
+    vertical-align: middle !important;
 }
 
 #lps_preview_embed_shortcode {
