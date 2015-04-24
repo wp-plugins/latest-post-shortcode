@@ -3,7 +3,7 @@
 Plugin Name: Latest Post Shortcode
 Description: This plugin allows you to create a dynamic content selection from your posts, pages and custom post types that can be embedded with a shortcode.
 Author: Iulia Cazan
-Version: 3.0.0
+Version: 3.1.0
 Author URI: https://profiles.wordpress.org/iulia-cazan
 License: GPL2
 
@@ -228,9 +228,16 @@ class Latest_Post_Shortcode
 					<td>' . __( 'Use Image', 'lps' ) . '</td>
 					<td>
 						<select name="lps_image" id="lps_image" onchange="lps_preview_configures_shortcode()">
-							<option value="">No Image</option>
-							<option value="thumbnail">Thumbnail</option>
-							<option value="full">Full</option>
+							<option value="">No Image</option>';
+							
+							$app_sizes = get_intermediate_image_sizes();
+							if ( ! empty( $app_sizes ) ) {
+								foreach ( $app_sizes as $s ) {
+									$body .= '<option value="' . $s . '">' . $s . '</option>';
+								}
+							}		
+							$body .= '
+							<option value="full">full (original size)</option>
 						</select>
 					</td>
 					<td>' . __( 'CSS Class Selector', 'lps' ) . '</td>
@@ -434,6 +441,7 @@ class Latest_Post_Shortcode
 			$tile_type = ( ! empty( $args['elements'] ) && ! empty( $this->tile_pattern[$args['elements']] ) ) ? $args['elements'] : 0;
 		}
 		$tile_pattern = $this->tile_pattern[$tile_type];
+		$read_more_class = ( ! in_array( $tile_type, array( 3, 11, 14, 19 ) ) ) ? ' class="read-more"' : ' class="read-more-wrap"'; 
 
 		$qargs = array(
 			'post_status'  => 'publish',
@@ -524,7 +532,7 @@ class Latest_Post_Shortcode
 				$tile = $tile_pattern;
 				$a_start = $a_end = '';
 				if ( $linkurl ) {
-					$a_start = '<a href="' . get_permalink( $post->ID ) . '" class="read-more">';
+					$a_start = '<a href="' . get_permalink( $post->ID ) . '"' . $read_more_class . '>';
 					$a_end = '</a>';
 				}
 				$tile = str_replace( '[a]', $a_start, $tile );

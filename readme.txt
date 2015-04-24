@@ -3,8 +3,8 @@ Contributors: Iulia Cazan
 Author URI: https://profiles.wordpress.org/iulia-cazan
 Tags: post, latest post, taxonomy, category, tag, parent, shortcode, latest, custom, selection, post by category, post by taxonomy, post by tag, post by id, post by parent, last post, tiles from posts, tile template, short content, short excerpt, limit content, limit excerpt, pagination, posts pagination
 Requires at least: not tested
-Tested up to: wp 4.1.1
-Stable tag:  3.0
+Tested up to: wp 4.2
+Stable tag:  3.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 Donate Link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=JJA37EHZXWUTJ
@@ -28,6 +28,9 @@ admin_enqueue_scripts, init, plugins_loaded, media_buttons_context, admin_footer
 None
 
 == Changelog ==
+= 3.1 =
+* Populate the "Use Image" dropdown dynamically from the list of image sizes registered in the application
+* Add global tile a class to differentiate when the link is applied to the entire tile content or to just the "read more" text
 = 3.0 =
 * Add No Pagination / Paginate Results option that allows to paginate the posts selection
 * Add Records Per Page option

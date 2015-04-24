@@ -78,6 +78,10 @@
     float: right;
 }
 
+.latest-post-selection article .read-more-wrap {
+    text-decoration: none;
+}
+
 .latest-post-selection.pages {
     clear: both;
     display: table-row;
