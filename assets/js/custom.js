@@ -41,6 +41,9 @@ function lps_init_embed_shortcode(ed) {
                 case 'showpages' :
                     jQuery('#lps_showpages').val(v);
                     break;
+                case 'pagespos' :
+                    jQuery('#lps_showpages_pos').val(v);
+                    break;
                 case 'type' :
                     jQuery('#lps_post_type').val(v);
                     break;
@@ -75,6 +78,9 @@ function lps_init_embed_shortcode(ed) {
                 case 'tag' :
                     jQuery('#lps_tag').val(v);
                     break;
+                case 'dtag' :
+                    jQuery('#lps_dtag').val(v);
+                    break;
                 case 'id' :
                     jQuery('#lps_post_id').val(v);
                     break;
@@ -108,7 +114,8 @@ function lps_preview_configures_shortcode() {
     var perpage = jQuery('#lps_per_page').val();
     var offset = jQuery('#lps_offset').val();
     var showpages = jQuery('#lps_showpages').val();
-    if ( use_pagination != '' ) {
+    var pagespos = jQuery('#lps_showpages_pos').val();
+    if (use_pagination != '') {
         jQuery('#lps_pagination_options').show();
         if (perpage != 0) {
             sc += ' perpage="' + perpage + '"';
@@ -118,6 +125,9 @@ function lps_preview_configures_shortcode() {
         }
         if (showpages != '') {
             sc += ' showpages="' + showpages + '"';
+            if (pagespos != '') {
+                sc += ' pagespos="' + pagespos + '"';
+            }
         }
     } else {
         jQuery('#lps_pagination_options').hide();
@@ -179,9 +189,14 @@ function lps_preview_configures_shortcode() {
     if (term != '') {
         sc += ' term="' + term + '"';
     }
-    var tag = jQuery('#lps_tag').val();
-    if (tag != '') {
-        sc += ' tag="' + tag + '"';
+    var dtag = jQuery('#lps_dtag').val();
+    if (dtag != '') {
+        sc += ' dtag="' + dtag + '"';
+    } else {
+        var tag = jQuery('#lps_tag').val();
+        if (tag != '') {
+            sc += ' tag="' + tag + '"';
+        }
     }
     var id = jQuery('#lps_post_id').val();
     if (id != '') {

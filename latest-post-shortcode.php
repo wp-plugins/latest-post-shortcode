@@ -3,7 +3,7 @@
 Plugin Name: Latest Post Shortcode
 Description: This plugin allows you to create a dynamic content selection from your posts, pages and custom post types that can be embedded with a shortcode.
 Author: Iulia Cazan
-Version: 3.1.0
+Version: 4.0
 Author URI: https://profiles.wordpress.org/iulia-cazan
 License: GPL2
 
@@ -111,14 +111,14 @@ class Latest_Post_Shortcode
 	 * Latest_Post_Shortcode::load_assets() Load the front assets
 	 */
 	function load_assets() {
-		wp_enqueue_style( 'lps-style', plugins_url( '/assets/css/style.css', __FILE__ ), array(), '3.0', false );
+		wp_enqueue_style( 'lps-style', plugins_url( '/assets/css/style.css', __FILE__ ), array(), '4.0', false );
 	}
 
 	/**
 	 * Latest_Post_Shortcode::load_admin_assets() Load the admin assets
 	 */
 	function load_admin_assets() {
-		wp_enqueue_style( 'lps-admin-style', plugins_url( '/assets/css/admin-style.css', __FILE__ ), array(), '3.0', false );
+		wp_enqueue_style( 'lps-admin-style', plugins_url( '/assets/css/admin-style.css', __FILE__ ), array(), '4.0', false );
 		wp_enqueue_script( 'lps-admin-shortcode-button', plugins_url( '/assets/js/custom.js', __FILE__ ), array( 'jquery' ), '3.0', true );
 	}
 
@@ -188,6 +188,16 @@ class Latest_Post_Shortcode
 											<option value="4">' . __( 'Show Pages Navigation (range of 4 visible pages)', 'lps' ) . '</option>
 											<option value="5">' . __( 'Show Pages Navigation (range of 5 visible pages)', 'lps' ) . '</option>
 											<option value="10">' . __( 'Show Pages Navigation (range of 10 visible pages)', 'lps' ) . '</option>
+										</select>
+									</td>
+								</tr>
+								<tr>
+									<td>' . __( 'Pagination Position', 'lps' ) . '</td>
+									<td colspan="4">
+										<select name="lps_showpages_pos" id="lps_showpages_pos" onchange="lps_preview_configures_shortcode()">
+											<option value="">' . __( 'Above the results', 'lps' ) . '</option>
+											<option value="1">' . __( 'Below the results', 'lps' ) . '</option>
+											<option value="2">' . __( 'Above & below the result', 'lps' ) . '</option>
 										</select>
 									</td>
 								</tr>
@@ -286,7 +296,13 @@ class Latest_Post_Shortcode
 				<tr>
 					<td>' . __( 'Tag', 'lps' ) . '</td>
 					<td><input type="text" name="lps_tag" id="lps_tag" onchange="lps_preview_configures_shortcode()" /></td>
-					<td colspan="2"></td>
+					<td>' . __( 'Dynamic', 'lps' ) . '</td>
+					<td>
+						<select name="lps_dtag" id="lps_dtag" onchange="lps_preview_configures_shortcode()">
+							<option value="">No, use the selected ones</option>
+							<option value="yes">Yes, use the current post tags</option>
+						</select>
+					</td>
 				</tr>
 				<tr>
 					<td colspan="4"><hr /><h3>' . __( 'OR Select', 'lps' ) . '</h3></td>
@@ -391,10 +407,14 @@ class Latest_Post_Shortcode
 			}
 
 			for ( $i = $start; $i <= $end; $i ++ ) {
-				if ( $current_page == $i ) {
-					$body .= '<li class="current"><a>' . $i . '</a></li>';
+				if ( 1 == $i ) {
+					$body .= '<li><a href="' . get_permalink() . '">' . $i . '</a></li>';
 				} else {
-					$body .= '<li><a href="' . get_pagenum_link( $i ) . '">' . $i . '</a></li>';
+					if ( $current_page == $i ) {
+						$body .= '<li class="current"><a>' . $i . '</a></li>';
+					} else {
+						$body .= '<li><a href="' . get_pagenum_link( $i ) . '">' . $i . '</a></li>';
+					}
 				}
 			}
 
@@ -498,6 +518,28 @@ class Latest_Post_Shortcode
 				)
 			);
 		}
+		if ( ! empty( $args['dtag'] ) ) {
+			$tag_ids = wp_get_post_tags( $post->ID, array( 'fields' => 'ids' ) );
+			if ( ! empty( $tag_ids ) && is_array( $tag_ids ) ) {
+				if ( ! empty( $qargs['tax_query'] ) ) {
+					array_push(
+						$qargs['tax_query'],
+						array(
+							'relation' => 'AND',
+						)
+					);
+				}
+				array_push(
+					$qargs['tax_query'],
+					array(
+						'taxonomy' => 'post_tag',
+						'field'    => 'term_id',
+						'terms'    => $tag_ids,
+						'operator' => 'IN',
+					)
+				);
+			}
+		}
 		if ( ! empty( $args['taxonomy'] ) && ! empty( $args['term'] ) ) {
 			if ( ! empty( $qargs['tax_query'] ) ) {
 				array_push(
@@ -523,7 +565,10 @@ class Latest_Post_Shortcode
 		if ( ! empty( $qargs['posts_per_page'] ) && ! empty( $args['showpages'] ) ) {
 			$counter = new WP_Query( $qargs );
 			$found_posts = ( ! empty( $counter->found_posts ) ) ? $counter->found_posts : 0;
-			echo $this->lps_pagination( intval( $found_posts ), ( ! empty( $qargs['posts_per_page'] ) ) ? $qargs['posts_per_page'] : 1, intval( $args['showpages'] ) );
+			$pagination_html = $this->lps_pagination( intval( $found_posts ), ( ! empty( $qargs['posts_per_page'] ) ) ? $qargs['posts_per_page'] : 1, intval( $args['showpages'] ) );
+			if ( empty( $args['pagespos'] ) || ( ! empty( $args['pagespos'] ) && 2 == $args['pagespos'] ) ) {
+				echo $pagination_html;
+			}
 		}
 		if ( ! empty( $posts ) ) {
 			$class = ( ! empty( $args['css'] ) ) ? ' ' . $args['css'] : '';
@@ -573,6 +618,11 @@ class Latest_Post_Shortcode
 				echo '<article>' . $tile . '<div class="clear"></div></article>';
 			}
 			echo '</section>';
+		}
+		if ( ! empty( $qargs['posts_per_page'] ) && ! empty( $args['showpages'] ) ) {
+			if ( ! empty( $args['pagespos'] ) && ( 1 == $args['pagespos'] || 2 == $args['pagespos'] ) ) {
+				echo $pagination_html;
+			}
 		}
 		return ob_get_clean();
 	}
