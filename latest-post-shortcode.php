@@ -3,7 +3,7 @@
 Plugin Name: Latest Post Shortcode
 Description: This plugin allows you to create a dynamic content selection from your posts, pages and custom post types that can be embedded with a shortcode.
 Author: Iulia Cazan
-Version: 4.0
+Version: 4.1
 Author URI: https://profiles.wordpress.org/iulia-cazan
 License: GPL2
 
@@ -111,15 +111,15 @@ class Latest_Post_Shortcode
 	 * Latest_Post_Shortcode::load_assets() Load the front assets
 	 */
 	function load_assets() {
-		wp_enqueue_style( 'lps-style', plugins_url( '/assets/css/style.css', __FILE__ ), array(), '4.0', false );
+		wp_enqueue_style( 'lps-style', plugins_url( '/assets/css/style.css', __FILE__ ), array(), '4.1', false );
 	}
 
 	/**
 	 * Latest_Post_Shortcode::load_admin_assets() Load the admin assets
 	 */
 	function load_admin_assets() {
-		wp_enqueue_style( 'lps-admin-style', plugins_url( '/assets/css/admin-style.css', __FILE__ ), array(), '4.0', false );
-		wp_enqueue_script( 'lps-admin-shortcode-button', plugins_url( '/assets/js/custom.js', __FILE__ ), array( 'jquery' ), '3.0', true );
+		wp_enqueue_style( 'lps-admin-style', plugins_url( '/assets/css/admin-style.css', __FILE__ ), array(), '4.1', false );
+		wp_enqueue_script( 'lps-admin-shortcode-button', plugins_url( '/assets/js/custom.js', __FILE__ ), array( 'jquery' ), '4.1', true );
 	}
 
 	/**

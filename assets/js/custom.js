@@ -14,7 +14,7 @@ function lps_recalculate_width() {
 
 function lps_init_embed_shortcode(ed) {
     var selected = '';
-    if (tinyMCE.activeEditor !== null) {
+    if( typeof tinyMCE != 'undefined' && tinyMCE.activeEditor !== null) {
         selected = tinyMCE.activeEditor.selection.getContent();
     } else {
         selected = jQuery('#content').val();
@@ -216,15 +216,17 @@ jQuery(document).ready(function () {
     });
     jQuery('#lps_button_embed_shortcode').click(lps_embed_shortcode);
     setTimeout(function () {
-        for (var i = 0; i < tinymce.editors.length; i++) {
-            lps_init_embed_shortcode(tinymce.editors[i]);
+        if( typeof tinymce != 'undefined' ) {
+            for (var i = 0; i < tinymce.editors.length; i++) {
+                lps_init_embed_shortcode(tinymce.editors[i]);
+            }
         }
     }, 2000);
 
     var visible = false;
     setInterval(function () {
         if (!visible) {
-            if (jQuery('#TB_window').is(":visible")) {
+            if (jQuery('#TB_window').is(":visible") && jQuery('#TB_window .lps_shortcode_popup_container_table').is(":visible")) {
                 visible = true;
                 lps_recalculate_width();
             }

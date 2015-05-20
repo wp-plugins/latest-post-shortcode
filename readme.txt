@@ -4,7 +4,7 @@ Author URI: https://profiles.wordpress.org/iulia-cazan
 Tags: post, latest post, taxonomy, category, tag, parent, shortcode, latest, custom, selection, post by category, post by taxonomy, post by tag, post by id, post by parent, last post, tiles from posts, tile template, short content, short excerpt, limit content, limit excerpt, pagination, posts pagination
 Requires at least: not tested
 Tested up to: wp 4.2.2
-Stable tag:  4.0
+Stable tag:  4.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 Donate Link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=JJA37EHZXWUTJ
@@ -28,6 +28,10 @@ admin_enqueue_scripts, init, plugins_loaded, media_buttons_context, admin_footer
 None
 
 == Changelog ==
+= 4.1 =
+* Add changes to the javascript to avoid the content check for resize when lightbox resources are not available (compatibility with other plugins)
+
+
 = 4.0 =
 * Add Pagination Position (default to top only) so that the pagination can be displayed below the results, or above and below the results
 * Add Dynamic Tag option so that you can show the posts that have one of the current page tags (current page is the page where the shortcode is embedded), without the need to specify a particular tag. This is useful to display something like "similar posts" or "on the same topic", etc.
