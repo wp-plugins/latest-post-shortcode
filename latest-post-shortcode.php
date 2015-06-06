@@ -3,7 +3,7 @@
 Plugin Name: Latest Post Shortcode
 Description: This plugin allows you to create a dynamic content selection from your posts, pages and custom post types that can be embedded with a shortcode.
 Author: Iulia Cazan
-Version: 4.1
+Version: 4.2
 Author URI: https://profiles.wordpress.org/iulia-cazan
 License: GPL2
 
@@ -111,15 +111,15 @@ class Latest_Post_Shortcode
 	 * Latest_Post_Shortcode::load_assets() Load the front assets
 	 */
 	function load_assets() {
-		wp_enqueue_style( 'lps-style', plugins_url( '/assets/css/style.css', __FILE__ ), array(), '4.1', false );
+		wp_enqueue_style( 'lps-style', plugins_url( '/assets/css/style.css', __FILE__ ), array(), '4.2', false );
 	}
 
 	/**
 	 * Latest_Post_Shortcode::load_admin_assets() Load the admin assets
 	 */
 	function load_admin_assets() {
-		wp_enqueue_style( 'lps-admin-style', plugins_url( '/assets/css/admin-style.css', __FILE__ ), array(), '4.1', false );
-		wp_enqueue_script( 'lps-admin-shortcode-button', plugins_url( '/assets/js/custom.js', __FILE__ ), array( 'jquery' ), '4.1', true );
+		wp_enqueue_style( 'lps-admin-style', plugins_url( '/assets/css/admin-style.css', __FILE__ ), array(), '4.2', false );
+		wp_enqueue_script( 'lps-admin-shortcode-button', plugins_url( '/assets/js/custom.js', __FILE__ ), array( 'jquery' ), '4.2', true );
 	}
 
 	/**
@@ -211,10 +211,21 @@ class Latest_Post_Shortcode
 					<td>
 						<select name="lps_display" id="lps_display" onchange="lps_preview_configures_shortcode()">
 							<option value="title">Title</option>
-							<option value="title,excerpt">Post Title + Post Excerpt</option>
-							<option value="title,content">Post Title + Post Content</option>
-							<option value="title,excerpt-small">Post Title + Few Chars From The Excerpt</option>
-							<option value="title,content-small">Post Title + Few Chars From The Content</option>
+							<option value="title,excerpt">Title + Post Excerpt</option>
+							<option value="title,content">Title + Post Content</option>
+							<option value="title,excerpt-small">Title + Few Chars From The Excerpt</option>
+							<option value="title,content-small">Title + Few Chars From The Content</option>
+							<option value="date">Date</option>
+							<option value="title,date">Title + Date</option>
+							<option value="title,date,excerpt">Title + Date + Post Excerpt</option>
+							<option value="title,date,content">Title + Date + Post Content</option>
+							<option value="title,date,excerpt-small">Title + Date + Few Chars From The Excerpt</option>
+							<option value="title,date,content-small">Title + Date + Few Chars From The Content</option>
+							<option value="date,title">Date + Title</option>
+							<option value="date,title,excerpt">Date + Title + Post Excerpt</option>
+							<option value="date,title,content">Date + Title + Post Content</option>
+							<option value="date,title,excerpt-small">Date + Title + Few Chars From The Excerpt</option>
+							<option value="date,title,content-small">Date + Title + Few Chars From The Content</option>
 						</select>
 						<div id="lps_display_limit">
 							<input type="text" name="lps_chrlimit" id="lps_chrlimit" onchange="lps_preview_configures_shortcode()" placeholder="Ex: 120" value="120" class="small" /> ' . __( 'chars from excerpt / content', 'lps' ) . '
@@ -571,6 +582,11 @@ class Latest_Post_Shortcode
 			}
 		}
 		if ( ! empty( $posts ) ) {
+			
+			if ( in_array( 'date', $extra_display ) ) {
+				$date_format = get_option( 'date_format' ) . ' \<\i\>'. get_option( 'time_format' ) . '\<\/\i\>';
+			}
+			
 			$class = ( ! empty( $args['css'] ) ) ? ' ' . $args['css'] : '';
 			echo '<section class="latest-post-selection' . esc_attr( $class ) . '">';
 			foreach ( $posts as $post ) {
@@ -592,6 +608,24 @@ class Latest_Post_Shortcode
 				} else {
 					$tile = str_replace( '[image]', '', $tile );
 				}
+
+				if ( in_array( 'date', $extra_display ) ) {
+					if ( in_array( 'title', $extra_display ) ) {
+						if ( ! empty( $args['display'] ) && substr_count( $args['display'], 'date,title' ) ) {
+							$tile = str_replace( '[title]', '[date][title]', $tile );
+						} else {
+							$tile = str_replace( '[title]', '[title][date]', $tile );
+						}
+					} else {
+						$tile = str_replace( '[title]', '[date]', $tile );
+					}
+				}
+				if ( in_array( 'date', $extra_display ) ) {
+					$tile = str_replace( '[date]', '<em>' . date_i18n( $date_format, strtotime( $post->post_date ), true ) . '</em>', $tile );
+				} else {
+					$tile = str_replace( '[date]', '', $tile );
+				}
+
 				if ( in_array( 'title', $extra_display ) ) {
 					$tile = str_replace( '[title]', '<h1>' . esc_html( $post->post_title ) . '</h1>', $tile );
 				} else {

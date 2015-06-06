@@ -140,8 +140,7 @@ function lps_preview_configures_shortcode() {
     var display = jQuery('#lps_display').val();
     if (display != '') {
         sc += ' display="' + display + '"';
-
-        if ('title,excerpt-small' == display || 'title,content-small' == display) {
+        if ( display.indexOf('excerpt-small') >= 0 || display.indexOf('content-small') >= 0 ) {
             jQuery('#lps_display_limit').show();
 
             var chrlimit = jQuery('#lps_chrlimit').val();

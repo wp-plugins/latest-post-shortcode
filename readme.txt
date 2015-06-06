@@ -4,7 +4,7 @@ Author URI: https://profiles.wordpress.org/iulia-cazan
 Tags: post, latest post, taxonomy, category, tag, parent, shortcode, latest, custom, selection, post by category, post by taxonomy, post by tag, post by id, post by parent, last post, tiles from posts, tile template, short content, short excerpt, limit content, limit excerpt, pagination, posts pagination
 Requires at least: not tested
 Tested up to: wp 4.2.2
-Stable tag:  4.1
+Stable tag:  4.2
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 Donate Link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=JJA37EHZXWUTJ
@@ -28,9 +28,11 @@ admin_enqueue_scripts, init, plugins_loaded, media_buttons_context, admin_footer
 None
 
 == Changelog ==
+= 4.2 =
+* Introduce the post date in the output. The general settings will apply to the date and time format.
+
 = 4.1 =
 * Add changes to the javascript to avoid the content check for resize when lightbox resources are not available (compatibility with other plugins)
-
 
 = 4.0 =
 * Add Pagination Position (default to top only) so that the pagination can be displayed below the results, or above and below the results
@@ -63,5 +65,10 @@ Donation and reviews are welcomed and will help me to continue future developmen
 This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
 
 == Version history ==
+4.2 - Post date option
+4.1 - Compatibility update
+4.0 - Pagination position and dynamic tag
+3.1 - Dynamic image dropdown option
+3.0 - Pagination options
 2.0 - Visual pattern selector and more features
 1.0 - Development version.
