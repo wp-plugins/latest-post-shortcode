@@ -82,6 +82,10 @@
     text-decoration: none;
 }
 
+.latest-post-selection article .tags:before{
+    content: "Tags: ";
+}
+
 .latest-post-selection.pages {
     clear: both;
     display: table-row;

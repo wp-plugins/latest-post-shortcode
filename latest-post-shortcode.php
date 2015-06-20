@@ -3,7 +3,7 @@
 Plugin Name: Latest Post Shortcode
 Description: This plugin allows you to create a dynamic content selection from your posts, pages and custom post types that can be embedded with a shortcode.
 Author: Iulia Cazan
-Version: 4.2
+Version: 5.0
 Author URI: https://profiles.wordpress.org/iulia-cazan
 License: GPL2
 
@@ -111,15 +111,15 @@ class Latest_Post_Shortcode
 	 * Latest_Post_Shortcode::load_assets() Load the front assets
 	 */
 	function load_assets() {
-		wp_enqueue_style( 'lps-style', plugins_url( '/assets/css/style.css', __FILE__ ), array(), '4.2', false );
+		wp_enqueue_style( 'lps-style', plugins_url( '/assets/css/style.css', __FILE__ ), array(), '5.0', false );
 	}
 
 	/**
 	 * Latest_Post_Shortcode::load_admin_assets() Load the admin assets
 	 */
 	function load_admin_assets() {
-		wp_enqueue_style( 'lps-admin-style', plugins_url( '/assets/css/admin-style.css', __FILE__ ), array(), '4.2', false );
-		wp_enqueue_script( 'lps-admin-shortcode-button', plugins_url( '/assets/js/custom.js', __FILE__ ), array( 'jquery' ), '4.2', true );
+		wp_enqueue_style( 'lps-admin-style', plugins_url( '/assets/css/admin-style.css', __FILE__ ), array(), '5.0', false );
+		wp_enqueue_script( 'lps-admin-shortcode-button', plugins_url( '/assets/js/custom.js', __FILE__ ), array( 'jquery' ), '5.0', true );
 	}
 
 	/**
@@ -240,6 +240,12 @@ class Latest_Post_Shortcode
 						<div id="lps_url_options">
 							<input type="text" name="lps_linktext" id="lps_linktext" onchange="lps_preview_configures_shortcode()" placeholder="Custom \'Read more\' message" />
 						</div>
+					</td>
+				</tr>
+				<tr>
+					<td>' . __( 'Extra Options', 'lps' ) . '</td>
+					<td colspan="3">
+						<label><input type="checkbox" name="lps_show_extra[]" id="lps_show_extra_tags" value="tags" onclick="lps_preview_configures_shortcode()" class="lps_show_extra" /> ' . __( 'Show post tags', 'lps' ) . '</label>
 					</td>
 				</tr>
 				<tr>					
@@ -473,6 +479,7 @@ class Latest_Post_Shortcode
 		}
 		$tile_pattern = $this->tile_pattern[$tile_type];
 		$read_more_class = ( ! in_array( $tile_type, array( 3, 11, 14, 19 ) ) ) ? ' class="read-more"' : ' class="read-more-wrap"'; 
+		$show_extra = ( ! empty( $args['show_extra'] ) ) ? explode( ',', $args['show_extra'] ) : array();
 
 		$qargs = array(
 			'post_status'  => 'publish',
@@ -480,9 +487,13 @@ class Latest_Post_Shortcode
 			'orderby'      => 'date_publish',
 			'offset'       => 0,
 			'numberposts'  => 1,
-			/** Make sure we do not loop in the current page */
-			'post__not_in' => array( $post->ID ),
 		);
+
+		/** Make sure we do not loop in the current page */
+		if ( ! empty( $post->ID ) ) {
+			$qargs['post__not_in'] = array( $post->ID );
+		}
+
 		if ( ! empty( $args['limit'] ) ) {
 			$qargs['numberposts'] = ( ! empty( $args['limit'] ) ) ? intval( $args['limit'] ) : 1;
 		}
@@ -626,6 +637,11 @@ class Latest_Post_Shortcode
 					$tile = str_replace( '[date]', '', $tile );
 				}
 
+				if ( in_array( 'tags', $show_extra ) ) {
+					$tags = apply_filters( 'the_tags', get_the_term_list( $post->ID, 'post_tag', '<div class="tags">', ', ', '</div>' ), '<div class="tags">', ', ', '</div>', $post->ID );
+					$tile = str_replace( '[text]', '[text]' . $tags, $tile );
+				}
+
 				if ( in_array( 'title', $extra_display ) ) {
 					$tile = str_replace( '[title]', '<h1>' . esc_html( $post->post_title ) . '</h1>', $tile );
 				} else {
@@ -649,6 +665,7 @@ class Latest_Post_Shortcode
 				} else {
 					$tile = str_replace( '[read_more_text]', '', $tile );
 				}
+
 				echo '<article>' . $tile . '<div class="clear"></div></article>';
 			}
 			echo '</section>';
@@ -664,3 +681,6 @@ class Latest_Post_Shortcode
 }
 
 Latest_Post_Shortcode::get_instance();
+
+/** Allow the text widget to render the Latest Post Shortcode */
+add_filter( 'widget_text', 'do_shortcode', 11);

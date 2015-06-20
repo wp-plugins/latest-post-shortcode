@@ -87,11 +87,12 @@ function lps_init_embed_shortcode(ed) {
                 case 'parent' :
                     jQuery('#lps_parent_id').val(v);
                     break;
-
+                case 'show_extra' :
+                    jQuery('#lps_show_extra').val(v);
+                    break;
                 default :
                     break;
             }
-
             if (( jQuery('#lps_offset').val() != 0 || jQuery('#lps_per_page').val() != 0 )) {
                 jQuery('#lps_pagination_options').show();
                 jQuery('#lps_use_pagination').val('yes');
@@ -109,7 +110,6 @@ function lps_preview_configures_shortcode() {
     if (limit != '') {
         sc += ' limit="' + limit + '"';
     }
-
     var use_pagination = jQuery('#lps_use_pagination').val();
     var perpage = jQuery('#lps_per_page').val();
     var offset = jQuery('#lps_offset').val();
@@ -132,7 +132,6 @@ function lps_preview_configures_shortcode() {
     } else {
         jQuery('#lps_pagination_options').hide();
     }
-
     var type = jQuery('#lps_post_type').val();
     if (type != '') {
         sc += ' type="' + type + '"';
@@ -142,7 +141,6 @@ function lps_preview_configures_shortcode() {
         sc += ' display="' + display + '"';
         if ( display.indexOf('excerpt-small') >= 0 || display.indexOf('content-small') >= 0 ) {
             jQuery('#lps_display_limit').show();
-
             var chrlimit = jQuery('#lps_chrlimit').val();
             if (chrlimit != '') {
                 sc += ' chrlimit="' + chrlimit + '"';
@@ -151,7 +149,6 @@ function lps_preview_configures_shortcode() {
             jQuery('#lps_display_limit').hide();
         }
     }
-
     var image = jQuery('#lps_image').val();
     if (image != '') {
         sc += ' image="' + image + '"';
@@ -162,7 +159,6 @@ function lps_preview_configures_shortcode() {
         jQuery('#lps_url_options').show();
         jQuery('label.without-link').hide();
         jQuery('label.with-link').show();
-
         var linktext = jQuery('#lps_linktext').val();
         if (linktext != '') {
             sc += ' linktext="' + linktext + '"';
@@ -204,6 +200,15 @@ function lps_preview_configures_shortcode() {
     var parent = jQuery('#lps_parent_id').val();
     if (parent != '') {
         sc += ' parent="' + parent + '"';
+    }
+    var show_extra = jQuery('.lps_show_extra:checkbox').map(function(){
+        return jQuery(this).is(":checked") ? jQuery(this).val() : '';
+    }).get();
+    if (show_extra != '') {
+        show_extra = show_extra.filter(function(e){return e}); 
+        if (show_extra != '') {
+            sc += ' show_extra="' + show_extra + '"';
+        }
     }
     sc += ']';
     jQuery('#lps_preview_embed_shortcode').html(sc);

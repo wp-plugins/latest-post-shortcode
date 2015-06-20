@@ -4,7 +4,7 @@ Author URI: https://profiles.wordpress.org/iulia-cazan
 Tags: post, latest post, taxonomy, category, tag, parent, shortcode, latest, custom, selection, post by category, post by taxonomy, post by tag, post by id, post by parent, last post, tiles from posts, tile template, short content, short excerpt, limit content, limit excerpt, pagination, posts pagination
 Requires at least: not tested
 Tested up to: wp 4.2.2
-Stable tag:  4.2
+Stable tag:  5.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 Donate Link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=JJA37EHZXWUTJ
@@ -28,6 +28,10 @@ admin_enqueue_scripts, init, plugins_loaded, media_buttons_context, admin_footer
 None
 
 == Changelog ==
+= 5.0 =
+* Add the extra display of post tags of the posts
+* Add filter to allow the text widget to render the content of a shortcode
+
 = 4.2 =
 * Introduce the post date in the output. The general settings will apply to the date and time format.
 
@@ -65,6 +69,7 @@ Donation and reviews are welcomed and will help me to continue future developmen
 This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
 
 == Version history ==
+5.0 - Extra tags display and text widget filter
 4.2 - Post date option
 4.1 - Compatibility update
 4.0 - Pagination position and dynamic tag
