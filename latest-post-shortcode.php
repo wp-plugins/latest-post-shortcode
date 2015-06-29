@@ -395,6 +395,8 @@ class Latest_Post_Shortcode
 	 * Latest_Post_Shortcode::get_short_text() Get short text of maximum x chars
 	 */
 	function get_short_text( $text, $limit ) {
+		$text = strip_shortcodes( $text );
+		$text = preg_replace( '~\[[^\]]+\]~', '', $text );
 		$text = apply_filters( 'the_content', strip_shortcodes( $text ) );
 		$text = strip_tags( $text );
 		/** This is a trick to replace the unicode whitespace :) */
