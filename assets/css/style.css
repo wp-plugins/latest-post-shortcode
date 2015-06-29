@@ -82,7 +82,7 @@
     text-decoration: none;
 }
 
-.latest-post-selection article .tags:before{
+.latest-post-selection article .tags:before {
     content: "Tags: ";
 }
 
