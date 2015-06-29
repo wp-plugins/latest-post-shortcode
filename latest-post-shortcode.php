@@ -428,12 +428,19 @@ class Latest_Post_Shortcode
 	 * Latest_Post_Shortcode::lps_navigate() Return the content generated after an ajax call for the pagination
 	 */
 	function lps_navigate_callback() {
-		$_args = stripslashes( stripslashes( $_POST['args'] ) );
-		$args = ( ! empty( $_POST['args'] ) ) ? json_decode( $_args ) : false;
-		if ( ! empty( $_POST['page'] ) && $args ) {
-			$args = (array) $args;
-			set_query_var( 'page', (int) $_POST['page'] );
-			echo $this->latest_selected_content( $args );
+		if ( ! empty( $_POST['args'] ) ) {
+			header ('Content-type: text/html; charset=utf-8');
+			$_args = $_POST['args'];
+			$_args = stripslashes( stripslashes( $_args ) );
+			$args = ( ! empty( $_POST['args'] ) ) ? json_decode( $_args ) : false;
+			if ( ! empty( $_POST['page'] ) && $args ) {
+				$args = (array) $args;
+				if ( ! empty( $args['linktext'] ) ) {
+					$args['linktext'] = preg_replace( '/u([0-9a-z]{4})+/', '&#x$1;', $args['linktext'] );
+				}
+				set_query_var( 'page', (int) $_POST['page'] );
+				echo $this->latest_selected_content( $args );
+			}
 		}
 		die();
 	}
@@ -669,8 +676,8 @@ class Latest_Post_Shortcode
 			$found_posts = ( ! empty( $counter->found_posts ) ) ? $counter->found_posts : 0;
 			$pagination_html = $this->lps_pagination( intval( $found_posts ), ( ! empty( $qargs['posts_per_page'] ) ) ? $qargs['posts_per_page'] : 1, intval( $args['showpages'] ), $shortcode_id );
 
-			if ( in_array( 'ajax_pagination', $show_extra ) && ! $is_lps_ajax ) {
-				echo '<div id="' . esc_attr( $shortcode_id ) . '-wrap" data-args="' . esc_js( json_encode( $args, JSON_UNESCAPED_UNICODE ) ) . '">';
+			if ( in_array( 'ajax_pagination', $show_extra ) && ! $is_lps_ajax && ! empty( $args ) && is_array( $args ) ) {
+				echo '<div id="' . esc_attr( $shortcode_id ) . '-wrap" data-args="' . esc_js( json_encode( $args ) ) . '">';
 			}
 
 			if ( empty( $args['pagespos'] ) || ( ! empty( $args['pagespos'] ) && 2 == $args['pagespos'] ) ) {
@@ -762,7 +769,7 @@ class Latest_Post_Shortcode
 			if ( ! empty( $args['pagespos'] ) && ( 1 == $args['pagespos'] || 2 == $args['pagespos'] ) ) {
 				echo $pagination_html;
 			}
-			if ( in_array( 'ajax_pagination', $show_extra ) && ! $is_lps_ajax ) {
+			if ( in_array( 'ajax_pagination', $show_extra ) && ! $is_lps_ajax && ! empty( $args ) && is_array( $args ) ) {
 				echo '</div>';
 			}
 		}
