@@ -23,6 +23,8 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
+define( 'LPS_PLUGIN_VERSION', '5.1' );
+
 class Latest_Post_Shortcode
 {
 	private static $instance;
@@ -114,13 +116,13 @@ class Latest_Post_Shortcode
 	 * Latest_Post_Shortcode::load_assets() Load the front assets
 	 */
 	function load_assets() {
-		wp_enqueue_style( 'lps-style', plugins_url( '/assets/css/style.css', __FILE__ ), array(), time() . '5.1', false );
+		wp_enqueue_style( 'lps-style', plugins_url( '/assets/css/style.css', __FILE__ ), array(), LPS_PLUGIN_VERSION, false );
 
 		wp_register_script(
 			'lps-ajax-pagination-js',
 			plugins_url( '/assets/js/custom-pagination.js', __FILE__ ),
 			array( 'jquery' ),
-			time() . '5.1',
+			LPS_PLUGIN_VERSION,
 			true
 		);
 		wp_localize_script(
@@ -137,8 +139,8 @@ class Latest_Post_Shortcode
 	 * Latest_Post_Shortcode::load_admin_assets() Load the admin assets
 	 */
 	function load_admin_assets() {
-		wp_enqueue_style( 'lps-admin-style', plugins_url( '/assets/css/admin-style.css', __FILE__ ), array(), time() . '5.1', false );
-		wp_enqueue_script( 'lps-admin-shortcode-button', plugins_url( '/assets/js/custom.js', __FILE__ ), array( 'jquery' ), time() . '5.1', true );
+		wp_enqueue_style( 'lps-admin-style', plugins_url( '/assets/css/admin-style.css', __FILE__ ), array(), LPS_PLUGIN_VERSION, false );
+		wp_enqueue_script( 'lps-admin-shortcode-button', plugins_url( '/assets/js/custom.js', __FILE__ ), array( 'jquery' ), LPS_PLUGIN_VERSION, true );
 	}
 
 	/**
