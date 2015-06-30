@@ -395,10 +395,13 @@ class Latest_Post_Shortcode
 	 * Latest_Post_Shortcode::get_short_text() Get short text of maximum x chars
 	 */
 	function get_short_text( $text, $limit ) {
-		$text = strip_shortcodes( $text );
-		$text = preg_replace( '~\[[^\]]+\]~', '', $text );
-		$text = apply_filters( 'the_content', strip_shortcodes( $text ) );
 		$text = strip_tags( $text );
+		$text = preg_replace( '~\[[^\]]+\]~', '', $text );
+		$text = strip_shortcodes( $text );
+		$text = apply_filters( 'the_content', strip_shortcodes( $text ) );
+		$text = preg_replace( '~\[[^\]]+\]~', '', $text );
+		$text = strip_tags( $text );
+		$text = preg_replace( '~\[[^\]]+\]~', '', $text );
 		/** This is a trick to replace the unicode whitespace :) */
 		$text = preg_replace( '/\xA0/u', ' ', $text );
 		$text = str_replace( '&nbsp;', ' ', $text );
@@ -679,7 +682,11 @@ class Latest_Post_Shortcode
 			$pagination_html = $this->lps_pagination( intval( $found_posts ), ( ! empty( $qargs['posts_per_page'] ) ) ? $qargs['posts_per_page'] : 1, intval( $args['showpages'] ), $shortcode_id );
 
 			if ( in_array( 'ajax_pagination', $show_extra ) && ! $is_lps_ajax && ! empty( $args ) && is_array( $args ) ) {
-				echo '<div id="' . esc_attr( $shortcode_id ) . '-wrap" data-args="' . esc_js( json_encode( $args ) ) . '">';
+				if ( version_compare( PHP_VERSION, '5.4', '<' ) ) {
+					echo '<div id="' . esc_attr( $shortcode_id ) . '-wrap" data-args="' . esc_js( json_encode( $args ) ) . '">';
+				} else {
+					echo '<div id="' . esc_attr( $shortcode_id ) . '-wrap" data-args="' . esc_js( json_encode( $args, JSON_UNESCAPED_UNICODE ) ) . '">';
+				}
 			}
 
 			if ( empty( $args['pagespos'] ) || ( ! empty( $args['pagespos'] ) && 2 == $args['pagespos'] ) ) {
