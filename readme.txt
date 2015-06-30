@@ -4,7 +4,7 @@ Author URI: https://profiles.wordpress.org/iulia-cazan
 Tags: post, latest post, taxonomy, category, tag, parent, shortcode, latest, custom, selection, post by category, post by taxonomy, post by tag, post by id, post by parent, last post, tiles from posts, tile template, short content, short excerpt, limit content, limit excerpt, pagination, posts pagination
 Requires at least: not tested
 Tested up to: wp 4.2.2
-Stable tag:  5.1
+Stable tag:  5.2
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 Donate Link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=JJA37EHZXWUTJ
@@ -28,6 +28,9 @@ admin_enqueue_scripts, init, plugins_loaded, media_buttons_context, admin_footer
 None
 
 == Changelog ==
+= 5.2 =
+* Implement changes to render full posts content (including the extra shortcodes)
+
 = 5.1 =
 * Add the order option (by date, title, menu order)
 * Add the ajax pagination option. As the shortcode pagination relies on the wp native pagination, when using more shortcodes with pagination on the same page, the navigation will affect all shortcodes, hence, by activating the ajax pagination, each shortcode pagination will act independent
@@ -73,6 +76,7 @@ Donation and reviews are welcomed and will help me to continue future developmen
 This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
 
 == Version history ==
+5.2 - Render full post content
 5.1 - Posts order and ajax pagination
 5.0 - Extra tags display and text widget filter
 4.2 - Post date option

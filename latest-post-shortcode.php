@@ -3,7 +3,7 @@
 Plugin Name: Latest Post Shortcode
 Description: This plugin allows you to create a dynamic content selection from your posts, pages and custom post types that can be embedded with a shortcode.
 Author: Iulia Cazan
-Version: 5.1
+Version: 5.2
 Author URI: https://profiles.wordpress.org/iulia-cazan
 License: GPL2
 
@@ -23,7 +23,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-define( 'LPS_PLUGIN_VERSION', '5.1' );
+define( 'LPS_PLUGIN_VERSION', '5.2' );
 
 class Latest_Post_Shortcode
 {
@@ -758,7 +758,7 @@ class Latest_Post_Shortcode
 					} elseif ( in_array( 'excerpt-small', $extra_display ) ) {
 						$text = $this->get_short_text( $post->post_excerpt, $chrlimit );
 					} else if ( in_array( 'content', $extra_display ) ) {
-						$text = apply_filters( 'the_content', strip_shortcodes( $post->post_content ) );
+						$text = apply_filters( 'the_content', $post->post_content );
 					} elseif ( in_array( 'content-small', $extra_display ) ) {
 						$text = $this->get_short_text( $post->post_content, $chrlimit );
 					}
