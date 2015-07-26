@@ -782,6 +782,7 @@ class Latest_Post_Shortcode
 				echo '</div>';
 			}
 		}
+		wp_reset_postdata();
 		return ob_get_clean();
 	}
 
